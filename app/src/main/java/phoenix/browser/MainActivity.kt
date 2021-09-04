@@ -1,4 +1,4 @@
-package phonix.browser
+package phoenix.browser
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,7 +8,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import phonix.browser.ui.theme.PhonixTheme
+import phoenix.browser.ui.theme.PhonixTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
