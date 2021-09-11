@@ -1,0 +1,4 @@
+*.kt crlf=input
+*.java crlf=input
+*.xml crlf=input
+*.yml crlf=input
