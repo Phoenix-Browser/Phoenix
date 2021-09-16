@@ -3,6 +3,10 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        gradlePluginPortal()
+        maven {
+            url = uri("https://maven.mozilla.org/maven2")
+        }
     }
     dependencies {
         classpath("com.android.tools.build:gradle:7.0.2")

@@ -10,10 +10,11 @@ class DependenciesPlugin : Plugin<Project> {
          add the mozilla maven to the project:
          I just want to do this here for the sake of learning how to work with gradle plugin!
          https://github.com/mozilla-mobile/android-components#maven-repository
+         Seems that this is not working and giving me exception!
          */
-        target.repositories.maven {
-            it.url = target.uri("https://maven.mozilla.org/maven2")
-        }
+//        target.repositories.maven {
+//            it.url = target.uri("")
+//        }
     }
 
     companion object {

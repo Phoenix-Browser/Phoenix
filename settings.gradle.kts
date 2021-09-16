@@ -4,6 +4,9 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
+        maven {
+            url = uri("https://maven.mozilla.org/maven2")
+        }
     }
 }
 rootProject.name = "Phoenix"
