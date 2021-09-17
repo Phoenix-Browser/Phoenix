@@ -1,4 +1,4 @@
-package phonix.browser.ui.theme
+package phoenix.browser.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

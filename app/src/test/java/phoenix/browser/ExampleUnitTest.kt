@@ -1,4 +1,4 @@
-package phonix.browser
+package phoenix.browser
 
 import org.junit.Test
 
