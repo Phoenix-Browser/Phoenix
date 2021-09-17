@@ -17,6 +17,8 @@ class DependenciesPlugin : Plugin<Project> {
 //        }
     }
 
+    //Just want the warning to be gone!
+    @Suppress("unused")
     companion object {
         object Versions {
             const val androidXCore = "1.6.0"
@@ -24,17 +26,23 @@ class DependenciesPlugin : Plugin<Project> {
             const val material = "1.4.0"
             const val compose = "1.0.1"
             const val lifecycleRuntime = "2.3.1"
+            const val lifecycle = "2.2.0"
             const val activityCompose = "1.3.1"
-
+            const val viewModelCompose = "1.0.0-alpha07"
+            const val hilt = "2.38.1"
             const val jUnit = "4.13.2"
             const val androidJUnitExt = "1.1.3"
             const val espressoCore = "3.4.0"
-
+            const val coil = "1.3.2"
             //Mozilla versions:
             /*
             There is just one release for all of the packages
              */
             const val androidComponents = "93.0.3"
+            const val leakCanary = "2.7"
+            const val navigation = "2.4.0-alpha09"
+            const val lottie = "4.1.0"
+            const val mockk = "1.12.0"
         }
 
         object Libs {
@@ -47,8 +55,29 @@ class DependenciesPlugin : Plugin<Project> {
                 const val uiToolingPreview = "androidx.compose.ui:ui-tooling-preview:${Versions.compose}"
                 const val activity = "androidx.activity:activity-compose:${Versions.activityCompose}"
                 const val uiTooling = "androidx.compose.ui:ui-tooling:${Versions.compose}"
+                const val foundation = "androidx.compose.foundation:foundation:${Versions.compose}"
+                const val viewModel = "androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.viewModelCompose}"
+                const val navigation = "androidx.navigation:navigation-compose:${Versions.navigation}"
             }
-            const val lifecycle = "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycleRuntime}"
+
+            object Lifecycle {
+                const val viewModel = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}"
+                const val runtime = "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycleRuntime}"
+            }
+
+            //I will use hilt for dependency injection
+            object Hilt {
+                //don't forget to set correctErrorTypes to true
+                const val android = "com.google.dagger:hilt-android:${Versions.hilt}"
+                const val compiler = "com.google.dagger:hilt-compiler:${Versions.hilt}"
+            }
+
+            const val coil = "io.coil-kt:coil-compose:${Versions.coil}"
+
+            const val leakCanary = "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}"
+
+            const val lottie = "com.airbnb.android:lottie-compose:${Versions.lottie}"
+
 
             /**
              * collection of android libraries made by Mozilla to build browser like applications!
@@ -403,6 +432,11 @@ class DependenciesPlugin : Plugin<Project> {
             object Compose {
                 const val uiTestJunit4 = "androidx.compose.ui:ui-test-junit4:${Versions.compose}"
             }
+            object Hilt {
+                const val androidTesting = "com.google.dagger:hilt-android-testing:${Versions.hilt}"
+                const val compiler = "com.google.dagger:hilt-compiler:${Versions.hilt}"
+            }
+            const val mockk = "io.mockk:mockk:${Versions.mockk}"
         }
     }
 }

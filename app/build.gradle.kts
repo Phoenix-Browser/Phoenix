@@ -4,9 +4,9 @@ plugins {
     id("com.android.application")
     kotlin("android")
     id("phoenix.browser.gradle.phoenix.browser.gradle.plugins.dependencies")
+    kotlin("kapt")
+    id("dagger.hilt.android.plugin")
 }
-
-val composeVersion = "1.0.1"
 
 android {
     compileSdk = 30
@@ -19,6 +19,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments["clearPackageData"] = "true"
+        testInstrumentationRunnerArguments["listener"] = "leakcanary.FailTestOnLeakRunListener"
 
         vectorDrawables {
             useSupportLibrary = true
@@ -47,7 +49,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = composeVersion
+        kotlinCompilerExtensionVersion = DependenciesPlugin.Companion.Versions.compose
     }
     packagingOptions {
         resources {
@@ -68,9 +70,13 @@ dependencies {
     implementation(DependenciesPlugin.Companion.Libs.Compose.material)
     implementation(DependenciesPlugin.Companion.Libs.Compose.uiToolingPreview)
     implementation(DependenciesPlugin.Companion.Libs.Compose.activity)
+    implementation(DependenciesPlugin.Companion.Libs.Compose.foundation)
+    implementation(DependenciesPlugin.Companion.Libs.Compose.viewModel)
+    implementation(DependenciesPlugin.Companion.Libs.Compose.navigation)
 
     //arch components
-    implementation(DependenciesPlugin.Companion.Libs.lifecycle)
+    implementation(DependenciesPlugin.Companion.Libs.Lifecycle.runtime)
+    implementation(DependenciesPlugin.Companion.Libs.Lifecycle.viewModel)
 
     //Mozilla libs:
 
@@ -116,10 +122,36 @@ dependencies {
 
     //End of Mozilla components
 
+    //hilt
+    implementation(DependenciesPlugin.Companion.Libs.Hilt.android)
+    kapt(DependenciesPlugin.Companion.Libs.Hilt.compiler)
+
+    //coil
+    implementation(DependenciesPlugin.Companion.Libs.coil)
+
+    //leak canary
+    debugImplementation(DependenciesPlugin.Companion.Libs.leakCanary)
+
+    //lottie
+    implementation(DependenciesPlugin.Companion.Libs.lottie)
+
     //test libs:
     testImplementation(DependenciesPlugin.Companion.TestLibs.jUnit)
     androidTestImplementation(DependenciesPlugin.Companion.TestLibs.androidJUnitExt)
     androidTestImplementation(DependenciesPlugin.Companion.TestLibs.espressoCore)
     androidTestImplementation(DependenciesPlugin.Companion.TestLibs.Compose.uiTestJunit4)
     debugImplementation(DependenciesPlugin.Companion.Libs.Compose.uiTooling)
+    //hilt
+    androidTestImplementation(DependenciesPlugin.Companion.TestLibs.Hilt.androidTesting)
+    kaptAndroidTest(DependenciesPlugin.Companion.TestLibs.Hilt.compiler)
+    testImplementation(DependenciesPlugin.Companion.TestLibs.Hilt.androidTesting)
+    kaptTest(DependenciesPlugin.Companion.TestLibs.Hilt.compiler)
+    //mockk
+    testImplementation(DependenciesPlugin.Companion.TestLibs.mockk)
+    androidTestImplementation(DependenciesPlugin.Companion.TestLibs.mockk)
+
+}
+
+kapt {
+    correctErrorTypes = true
 }
