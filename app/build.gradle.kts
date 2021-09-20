@@ -1,4 +1,6 @@
+import io.github.reactivecircus.appversioning.toSemVer
 import phoenix.browser.gradle.plugins.DependenciesPlugin
+import java.time.Instant
 
 plugins {
     id("com.android.application")
@@ -6,6 +8,8 @@ plugins {
     id("phoenix.browser.gradle.phoenix.browser.gradle.plugins.dependencies")
     kotlin("kapt")
     id("dagger.hilt.android.plugin")
+    //Adding app-versioning plugin just for now! I will implement my own versioning system when I have time and free mind :)
+    id("io.github.reactivecircus.app-versioning") version "1.0.0"
 }
 
 android {
@@ -52,10 +56,48 @@ android {
         kotlinCompilerExtensionVersion = DependenciesPlugin.Companion.Versions.compose
     }
     packagingOptions {
+        /*
+        Found another problem at runtime!
+        Here is the workaround that I found: https://github.com/Kotlin/kotlinx.coroutines/issues/2023#issuecomment-627999486
+         */
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "**/attach_hotspot_windows.dll"
+            excludes += "META-INF/licenses/**"
+            excludes += "META-INF/AL2.0"
+            excludes += "META-INF/LGPL2.1"
         }
     }
+}
+
+//I will be overriding these for my local builds!
+appVersioning {
+
+    overrideVersionCode { gitTag, providerFactory, variantInfo ->
+        val buildNumber = providerFactory.environmentVariable("BUILD_NUMBER").getOrElse("0").toInt()
+
+        if (variantInfo.isDebugBuild) {
+            /*
+            I will use time for debug builds
+             */
+            Instant.now().epochSecond.toInt()
+        } else {
+            val semVer = gitTag.toSemVer()
+
+            semVer.major * 10000 + semVer.minor * 100 + buildNumber
+        }
+    }
+
+    overrideVersionName { gitTag, providerFactory, variantInfo ->
+        val buildNumber = providerFactory.environmentVariable("BUILD_NUMBER").getOrElse("0").toInt()
+        val isCIBuild = providerFactory.environmentVariable("IS_CI_BUILD").getOrElse("false").toBoolean()
+        if (variantInfo.isDebugBuild) {
+            "${gitTag.rawTagName} - #$buildNumber(${gitTag.commitHash}-${if (isCIBuild) "CI" else variantInfo.variantName})"
+        } else {
+            "${gitTag.rawTagName} - #$buildNumber(${gitTag.commitHash})"
+        }
+    }
+
+    fetchTagsWhenNoneExistsLocally.set(true)
 }
 
 dependencies {
@@ -64,6 +106,17 @@ dependencies {
     implementation(DependenciesPlugin.Companion.Libs.androidxCore)
     implementation(DependenciesPlugin.Companion.Libs.appCompat)
     implementation(DependenciesPlugin.Companion.Libs.material)
+
+    /*
+    Adding this will hopefully solve the problem at build time!
+    Error =
+    A failure occurred while executing com.android.build.gradle.internal.tasks.CheckDuplicatesRunnable
+   > Duplicate class com.google.common.util.concurrent.ListenableFuture found in modules jetified-guava-20.0 (com.google.guava:guava:20.0) and jetified-listenablefuture-1.0 (com.google.guava:listenablefuture:1.0)
+
+     Go to the documentation to learn how to <a href="d.android.com/r/tools/classpath-sync-errors">Fix dependency resolution errors</a>.
+
+     */
+    implementation(DependenciesPlugin.Companion.Libs.guava)
 
     //compose:
     implementation(DependenciesPlugin.Companion.Libs.Compose.ui)
@@ -125,6 +178,7 @@ dependencies {
     //hilt
     implementation(DependenciesPlugin.Companion.Libs.Hilt.android)
     kapt(DependenciesPlugin.Companion.Libs.Hilt.compiler)
+    implementation(DependenciesPlugin.Companion.Libs.Hilt.navigationCompose)
 
     //coil
     implementation(DependenciesPlugin.Companion.Libs.coil)
