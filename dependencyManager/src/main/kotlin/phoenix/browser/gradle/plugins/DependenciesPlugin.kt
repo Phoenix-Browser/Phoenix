@@ -40,7 +40,8 @@ class DependenciesPlugin : Plugin<Project> {
              */
             const val androidComponents = "93.0.3"
             const val leakCanary = "2.7"
-            const val navigation = "2.4.0-alpha09"
+            const val navigation = "2.4.0-alpha06"
+            const val hiltNavigationCompose = "1.0.0-alpha03"
             const val lottie = "4.1.0"
             const val mockk = "1.12.0"
         }
@@ -49,6 +50,7 @@ class DependenciesPlugin : Plugin<Project> {
             const val androidxCore = "androidx.core:core-ktx:${Versions.androidXCore}"
             const val appCompat = "androidx.appcompat:appcompat:${Versions.appCompat}"
             const val material = "com.google.android.material:material:${Versions.material}"
+            const val guava = "com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava"
             object Compose {
                 const val ui = "androidx.compose.ui:ui:${Versions.compose}"
                 const val material = "androidx.compose.material:material:${Versions.compose}"
@@ -70,6 +72,7 @@ class DependenciesPlugin : Plugin<Project> {
                 //don't forget to set correctErrorTypes to true
                 const val android = "com.google.dagger:hilt-android:${Versions.hilt}"
                 const val compiler = "com.google.dagger:hilt-compiler:${Versions.hilt}"
+                const val navigationCompose = "androidx.hilt:hilt-navigation-compose:${Versions.hiltNavigationCompose}"
             }
 
             const val coil = "io.coil-kt:coil-compose:${Versions.coil}"
