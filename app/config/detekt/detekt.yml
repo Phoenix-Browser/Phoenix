@@ -1,11 +1,12 @@
 build:
-  maxIssues: 0
+  # I will put this on 10! I don't want to break the codeBase everytime!
+  maxIssues: 10
   excludeCorrectable: false
   weights:
-    # complexity: 2
-    # LongParameterList: 1
-    # style: 1
-    # comments: 1
+  # complexity: 2
+  # LongParameterList: 1
+  # style: 1
+  # comments: 1
 
 config:
   validation: true
@@ -33,15 +34,15 @@ processors:
 console-reports:
   active: true
   exclude:
-     - 'ProjectStatisticsReport'
-     - 'ComplexityReport'
-     - 'NotificationReport'
-  #  - 'FindingsReport'
-     - 'FileBasedFindingsReport'
+    - 'ProjectStatisticsReport'
+    - 'ComplexityReport'
+    - 'NotificationReport'
+    #  - 'FindingsReport'
+    - 'FileBasedFindingsReport'
 
 output-reports:
   active: true
-  exclude:
+  exclude: []
   # - 'TxtOutputReport'
   # - 'XmlOutputReport'
   # - 'HtmlOutputReport'
@@ -88,9 +89,11 @@ complexity:
   ComplexMethod:
     active: true
     threshold: 15
+    #I do want to use them!
     ignoreSingleWhenExpression: false
-    ignoreSimpleWhenEntries: false
-    ignoreNestingFunctions: false
+    ignoreSimpleWhenEntries: true
+    # I want to use nesting functions!
+    ignoreNestingFunctions: true
     nestingFunctions:
       - 'also'
       - 'apply'
@@ -136,6 +139,7 @@ complexity:
     ignoreAnnotation: true
     excludeStringsWithLessThan5Characters: true
     ignoreStringsRegex: '$^'
+  # I will leave this default values!
   TooManyFunctions:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
@@ -144,9 +148,11 @@ complexity:
     thresholdInInterfaces: 11
     thresholdInObjects: 11
     thresholdInEnums: 11
-    ignoreDeprecated: false
-    ignorePrivate: false
-    ignoreOverridden: false
+    ignoreDeprecated: true
+    # I don't know but I don't think that is not so important!
+    ignorePrivate: true
+    # we don’t have to suppress on Activity and Fragment classes that often require many overrides.
+    ignoreOverridden: true
 
 coroutines:
   active: true
@@ -183,8 +189,9 @@ empty-blocks:
     active: true
   EmptyInitBlock:
     active: true
+  # I don't want to break my build because of empty kt file!
   EmptyKtFile:
-    active: true
+    active: false
   EmptySecondaryConstructor:
     active: true
   EmptyTryBlock:
@@ -267,7 +274,7 @@ exceptions:
 
 formatting:
   active: true
-  android: false
+  android: true
   autoCorrect: true
   AnnotationOnSeparateLine:
     active: false
@@ -402,8 +409,9 @@ formatting:
 
 naming:
   active: true
+  # I want to use this pattern
   BooleanPropertyNaming:
-    active: false
+    active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
     allowedPattern: '^(is|has|are)'
   ClassNaming:
@@ -426,7 +434,7 @@ naming:
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
     forbiddenName: []
   FunctionMaxLength:
-    active: false
+    active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
     maximumFunctionNameLength: 30
   FunctionMinLength:
