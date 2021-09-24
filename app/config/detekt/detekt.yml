@@ -662,8 +662,9 @@ style:
   LoopWithTooManyJumpStatements:
     active: true
     maxJumpCount: 1
+  # Disabling this will hide the warning on compose colors
   MagicNumber:
-    active: true
+    active: false
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
     ignoreNumbers:
       - '-1'
