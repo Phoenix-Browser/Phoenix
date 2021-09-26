@@ -31,7 +31,20 @@ class DependenciesPlugin : Plugin<Project> {
             const val viewModelCompose = "1.0.0-alpha07"
             const val hilt = "2.38.1"
             const val jUnit = "4.13.2"
-            const val androidJUnitExt = "1.1.3"
+            /*
+            Changing the version to 1.1.2 to fix the the problem with gradle check:
+            Could not determine the dependencies of task ':app:lintDebug'.
+> Could not resolve all task dependencies for configuration ':app:debugAndroidTestRuntimeClasspath'.
+   > Could not resolve androidx.test.ext:junit:1.1.3.
+     Required by:
+         project :app
+      > Cannot find a version of 'androidx.test.ext:junit' that satisfies the version constraints:
+           Dependency path 'Phoenix:app:unspecified' --> 'androidx.test.ext:junit:1.1.3'
+           Constraint path 'Phoenix:app:unspecified' --> 'androidx.test.ext:junit:{strictly 1.1.2}' because of the following reason: debugRuntimeClasspath uses version 1.1.2
+           Dependency path 'Phoenix:app:unspecified' --> 'androidx.compose.ui:ui-test-junit4:1.0.1' (releaseVariantReleaseRuntimePublication) --> 'androidx.test.ext:junit:1.1.2'
+
+             */
+            const val androidJUnitExt = "1.1.2"
             const val espressoCore = "3.4.0"
             const val coil = "1.3.2"
             //Mozilla versions:
