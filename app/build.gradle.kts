@@ -182,6 +182,20 @@ detekt {
     }
 }
 
+/*
+I have the warning on compile time says:
+The following options were not recognized by any processor: '[dagger.fastInit, dagger.hilt.android.internal.disableAndroidSuperclassValidation, kapt.kotlin.generated]'
+
+So I will do the following according to this: https://youtrack.jetbrains.com/issue/KT-46940
+
+Other links:
+https://github.com/google/dagger/issues/2040
+https://dagger.dev/hilt/gradle-setup#aggregating-task
+ */
+hilt {
+    enableAggregatingTask = true
+}
+
 dependencies {
 
     //support libs:
