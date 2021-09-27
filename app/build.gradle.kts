@@ -49,7 +49,7 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
-        useIR = true
+        //useIR = true
     }
     buildFeatures {
         compose = true
