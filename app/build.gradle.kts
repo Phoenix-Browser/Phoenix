@@ -92,8 +92,9 @@ appVersioning {
     overrideVersionName { gitTag, providerFactory, variantInfo ->
         val buildNumber = providerFactory.environmentVariable("BUILD_NUMBER").getOrElse("0").toInt()
         val isCIBuild = providerFactory.environmentVariable("IS_CI_BUILD").getOrElse("false").toBoolean()
+        val isNightly = providerFactory.environmentVariable("IS_NIGHTLY").getOrElse("false").toBoolean()
         if (variantInfo.isDebugBuild) {
-            "${gitTag.rawTagName} - #$buildNumber(${gitTag.commitHash}-${if (isCIBuild) "CI" else variantInfo.variantName})"
+            "${gitTag.rawTagName} - #$buildNumber(${gitTag.commitHash}-${if (isCIBuild) "CI" else variantInfo.variantName}${ if (isNightly) "-night" else ""})"
         } else {
             "${gitTag.rawTagName} - #$buildNumber(${gitTag.commitHash})"
         }
