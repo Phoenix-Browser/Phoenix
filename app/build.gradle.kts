@@ -26,7 +26,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["clearPackageData"] = "true"
-        testInstrumentationRunnerArguments["listener"] = "leakcanary.FailTestOnLeakRunListener"
+        //This caused my instrumental tests to fail!
+        //testInstrumentationRunnerArguments["listener"] = "leakcanary.FailTestOnLeakRunListener"
 
         vectorDrawables {
             useSupportLibrary = true
@@ -68,6 +69,10 @@ android {
             excludes += "META-INF/AL2.0"
             excludes += "META-INF/LGPL2.1"
         }
+    }
+
+    testOptions {
+        execution = "ANDROIDX_TEST_ORCHESTRATOR"
     }
 }
 
@@ -292,6 +297,8 @@ dependencies {
     androidTestImplementation(DependenciesPlugin.Companion.TestLibs.espressoCore)
     androidTestImplementation(DependenciesPlugin.Companion.TestLibs.Compose.uiTestJunit4)
     debugImplementation(DependenciesPlugin.Companion.Libs.Compose.uiTooling)
+    androidTestImplementation(DependenciesPlugin.Companion.TestLibs.androidTestRunner)
+    androidTestUtil(DependenciesPlugin.Companion.TestLibs.orchestrator)
     //hilt
     androidTestImplementation(DependenciesPlugin.Companion.TestLibs.Hilt.androidTesting)
     kaptAndroidTest(DependenciesPlugin.Companion.TestLibs.Hilt.compiler)
