@@ -1,0 +1,109 @@
+name: Build latest push
+
+on:
+  push:
+
+concurrency:
+  group: ${{ github.head.ref }}
+  cancel-in-progress: true
+
+env:
+  BUILD_NUMBER: ${{ github.run_id }}
+  IS_CI_BUILD: true
+  IS_NIGHTLY: true
+
+jobs:
+  setup_java:
+    name: Setup JAVA 11
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+      - name: set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+  gradle_build:
+    name: Gradle build!
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+      - name: Gradle build
+        run: ./gradlew build
+
+  gradle_check:
+    name: Gradle Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Gradle app check
+        run: ./gradlew check
+
+  unit_tests:
+    name: run unit tests
+    runs-on: ubuntu-latest
+    needs: [ gradle_build, gradle_check ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Unit tests
+        run: ./gradlew test
+
+  android_tests:
+    name: run android tests
+    runs-on:  macos-latest
+    needs: [ gradle_build, gradle_check ]
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+      - name: set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Instrumentation Tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          script: ./gradlew connectedAndroidTest
+
+  deploy_nightly:
+    name: Build Nightly apk based on latest push
+    runs-on: ubuntu-latest
+    needs: [ unit_tests, android_tests ]
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
+      - name: Upload APK to workspace
+        uses: actions/upload-artifact@v2
+        with:
+          name: app
+          path: app/build/outputs/apk/debug/app-debug.apk
+      - name: Send nightly build to telegram channel
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.CHANNEL_CHAT_ID }}
+          token: ${{ secrets.BOT_TOKEN }}
+          message: |
+            Nightly build based on:
+            run ID: ${{ github.run_id }}
+            Triggered by: ${{ github.actor }}
+            Ref: ${{ github.ref }}
+            Commit SHA: ${{ github.sha }}
+            latest commit description: ${{ github.event.head_commit.message }}
+          document: app/build/outputs/apk/debug/app-debug.apk
+      - name: Send confirmation to group
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.GROUP_CHAT_ID }}
+          token: ${{ secrets.BOT_TOKEN }}
+          message: |
+            Sucsses push run!
+            additional info:
+            run ID: ${{ github.run_id }}
+            Triggered by: ${{ github.actor }}
+            Ref: ${{ github.ref }}
+            Commit SHA: ${{ github.sha }}
+            latest commit description: ${{ github.event.head_commit.message }}
+            nightly builds available at: @phoenixBrowserChannel
