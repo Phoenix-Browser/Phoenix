@@ -73,7 +73,7 @@ jobs:
         with:
           api-level: 30
           target: google_apis
-          script: ./gradlew connectedAndroidTest
+          script: ./gradlew connectedCheck
 
   deploy_nightly:
     name: Build Nightly apk based on latest push
