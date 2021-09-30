@@ -94,7 +94,7 @@ jobs:
           to: ${{ secrets.CHANNEL_CHAT_ID }}
           token: ${{ secrets.BOT_TOKEN }}
           message: |
-            Nightly build based on:
+            #night build based on:
             run ID: ${{ github.run_id }}
             Triggered by: ${{ github.actor }}
             Ref: ${{ github.ref }}
