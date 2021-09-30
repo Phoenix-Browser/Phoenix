@@ -4,7 +4,7 @@ on:
   push:
 
 concurrency:
-  group: ${{ github.head.ref }}
+  group: ${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -27,6 +27,7 @@ jobs:
   gradle_build:
     name: Gradle build!
     runs-on: ubuntu-latest
+    needs: [ setup_java ]
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
@@ -38,6 +39,7 @@ jobs:
   gradle_check:
     name: Gradle Check
     runs-on: ubuntu-latest
+    needs: [ gradle_build ]
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
