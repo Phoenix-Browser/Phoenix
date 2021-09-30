@@ -57,6 +57,8 @@ class DependenciesPlugin : Plugin<Project> {
             const val hiltNavigationCompose = "1.0.0-alpha03"
             const val lottie = "4.1.0"
             const val mockk = "1.12.0"
+            const val androidTestRunner = "1.4.0"
+            const val orchestrator = "1.4.0"
         }
 
         object Libs {
@@ -442,6 +444,8 @@ class DependenciesPlugin : Plugin<Project> {
         }
 
         object TestLibs {
+            const val androidTestRunner = "androidx.test:runner:${Versions.androidTestRunner}"
+            const val orchestrator = "androidx.test:orchestrator:${Versions.orchestrator}"
             const val jUnit = "junit:junit:${Versions.jUnit}"
             const val androidJUnitExt = "androidx.test.ext:junit:${Versions.androidJUnitExt}"
             const val espressoCore = "androidx.test.espresso:espresso-core:${Versions.espressoCore}"
