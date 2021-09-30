@@ -30,6 +30,8 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Gradle build
         run: ./gradlew build
 
@@ -37,6 +39,10 @@ jobs:
     name: Gradle Check
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Gradle app check
         run: ./gradlew check
 
@@ -73,6 +79,8 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Build Debug APK
         run: ./gradlew assembleDebug
       - name: Upload APK to workspace
