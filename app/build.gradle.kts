@@ -88,7 +88,7 @@ appVersioning {
              */
             Instant.now().epochSecond.toInt()
         } else {
-            val semVer = gitTag.toSemVer()
+            val semVer = gitTag.toSemVer(true)
 
             semVer.major * 10000 + semVer.minor * 100 + buildNumber
         }
