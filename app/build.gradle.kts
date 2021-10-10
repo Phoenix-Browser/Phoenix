@@ -1,3 +1,4 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import io.github.reactivecircus.appversioning.toSemVer
 import phoenix.browser.gradle.plugins.DependenciesPlugin
 import java.time.Instant
@@ -33,6 +34,17 @@ android {
             useSupportLibrary = true
         }
     }
+
+    //Put keystore properties inside gradle build for CI to build signed APK
+//    signingConfigs {
+//        create("release") {
+//            storeFile = file(getLocalProperty("keystore") as String)
+//            storePassword = getLocalProperty("storePassword") as String
+//            keyAlias = getLocalProperty("keyAlias") as String
+//            keyPassword = getLocalProperty("keyPassword") as String
+//            enableV2Signing = true
+//        }
+//    }
 
     buildTypes {
         getByName("release") {
@@ -75,6 +87,12 @@ android {
         execution = "ANDROIDX_TEST_ORCHESTRATOR"
     }
 }
+
+/**
+ * Small function around local properties file
+ */
+fun getLocalProperty(key: String): Any? =
+    gradleLocalProperties(rootDir)[key]
 
 //I will be overriding these for my local builds!
 appVersioning {
