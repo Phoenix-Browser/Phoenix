@@ -1,5 +1,6 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import io.github.reactivecircus.appversioning.toSemVer
+import org.jetbrains.kotlin.konan.properties.hasProperty
 import phoenix.browser.gradle.plugins.DependenciesPlugin
 import java.time.Instant
 
@@ -36,18 +37,23 @@ android {
     }
 
     //Put keystore properties inside gradle build for CI to build signed APK
-//    signingConfigs {
-//        create("release") {
-//            storeFile = file(getLocalProperty("keystore") as String)
-//            storePassword = getLocalProperty("storePassword") as String
-//            keyAlias = getLocalProperty("keyAlias") as String
-//            keyPassword = getLocalProperty("keyPassword") as String
-//            enableV2Signing = true
-//        }
-//    }
+    if (gradleLocalProperties(rootDir).hasProperty("keystore")) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(getLocalProperty("keystore") as String)
+                storePassword = getLocalProperty("storePassword") as String
+                keyAlias = getLocalProperty("keyAlias") as String
+                keyPassword = getLocalProperty("keyPassword") as String
+                enableV2Signing = true
+            }
+        }
+    }
 
     buildTypes {
         getByName("release") {
+            if (gradleLocalProperties(rootDir).hasProperty("keystore")) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
