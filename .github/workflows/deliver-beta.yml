@@ -78,7 +78,7 @@ jobs:
           target: google_apis
           script: ./gradlew connectedCheck
 
-  deploy_nightly:
+  deploy_beta:
     name: Build Beta apk based on latest push
     runs-on: ubuntu-latest
     needs: [ unit_tests, android_tests ]
@@ -97,7 +97,7 @@ jobs:
   telegram_upload:
     name: Upload Nightly apk in telegram
     runs-on: ubuntu-latest
-    needs: [ deploy_nightly ]
+    needs: [ deploy_beta ]
     steps:
       - name: Download Nightly APK
         uses: actions/download-artifact@v2
