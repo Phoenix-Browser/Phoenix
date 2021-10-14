@@ -37,7 +37,11 @@ jobs:
         with:
           fetch-depth: 0
       - name: Gradle build
-        run: ./gradlew build
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          cache: 'gradle'
+        run: ./gradlew build --no-daemon
 
   gradle_check:
     name: Gradle Check
@@ -49,6 +53,10 @@ jobs:
         with:
           fetch-depth: 0
       - name: Gradle app check
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          cache: 'gradle'
         run: ./gradlew check
 
   unit_tests:
@@ -58,6 +66,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Unit tests
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          cache: 'gradle'
         run: ./gradlew test
 
   android_tests:
@@ -88,6 +100,10 @@ jobs:
         with:
           fetch-depth: 0
       - name: Build Debug APK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          cache: 'gradle'
         run: ./gradlew assembleDebug
       - name: Upload APK to workspace
         uses: actions/upload-artifact@v2
