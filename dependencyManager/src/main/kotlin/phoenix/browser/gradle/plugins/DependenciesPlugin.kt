@@ -31,7 +31,20 @@ class DependenciesPlugin : Plugin<Project> {
             const val viewModelCompose = "1.0.0-alpha07"
             const val hilt = "2.38.1"
             const val jUnit = "4.13.2"
-            const val androidJUnitExt = "1.1.3"
+            /*
+            Changing the version to 1.1.2 to fix the the problem with gradle check:
+            Could not determine the dependencies of task ':app:lintDebug'.
+> Could not resolve all task dependencies for configuration ':app:debugAndroidTestRuntimeClasspath'.
+   > Could not resolve androidx.test.ext:junit:1.1.3.
+     Required by:
+         project :app
+      > Cannot find a version of 'androidx.test.ext:junit' that satisfies the version constraints:
+           Dependency path 'Phoenix:app:unspecified' --> 'androidx.test.ext:junit:1.1.3'
+           Constraint path 'Phoenix:app:unspecified' --> 'androidx.test.ext:junit:{strictly 1.1.2}' because of the following reason: debugRuntimeClasspath uses version 1.1.2
+           Dependency path 'Phoenix:app:unspecified' --> 'androidx.compose.ui:ui-test-junit4:1.0.1' (releaseVariantReleaseRuntimePublication) --> 'androidx.test.ext:junit:1.1.2'
+
+             */
+            const val androidJUnitExt = "1.1.2"
             const val espressoCore = "3.4.0"
             const val coil = "1.3.2"
             //Mozilla versions:
@@ -40,15 +53,19 @@ class DependenciesPlugin : Plugin<Project> {
              */
             const val androidComponents = "93.0.3"
             const val leakCanary = "2.7"
-            const val navigation = "2.4.0-alpha09"
+            const val navigation = "2.4.0-alpha06"
+            const val hiltNavigationCompose = "1.0.0-alpha03"
             const val lottie = "4.1.0"
             const val mockk = "1.12.0"
+            const val androidTestRunner = "1.4.0"
+            const val orchestrator = "1.4.0"
         }
 
         object Libs {
             const val androidxCore = "androidx.core:core-ktx:${Versions.androidXCore}"
             const val appCompat = "androidx.appcompat:appcompat:${Versions.appCompat}"
             const val material = "com.google.android.material:material:${Versions.material}"
+            const val guava = "com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava"
             object Compose {
                 const val ui = "androidx.compose.ui:ui:${Versions.compose}"
                 const val material = "androidx.compose.material:material:${Versions.compose}"
@@ -70,6 +87,7 @@ class DependenciesPlugin : Plugin<Project> {
                 //don't forget to set correctErrorTypes to true
                 const val android = "com.google.dagger:hilt-android:${Versions.hilt}"
                 const val compiler = "com.google.dagger:hilt-compiler:${Versions.hilt}"
+                const val navigationCompose = "androidx.hilt:hilt-navigation-compose:${Versions.hiltNavigationCompose}"
             }
 
             const val coil = "io.coil-kt:coil-compose:${Versions.coil}"
@@ -426,6 +444,8 @@ class DependenciesPlugin : Plugin<Project> {
         }
 
         object TestLibs {
+            const val androidTestRunner = "androidx.test:runner:${Versions.androidTestRunner}"
+            const val orchestrator = "androidx.test:orchestrator:${Versions.orchestrator}"
             const val jUnit = "junit:junit:${Versions.jUnit}"
             const val androidJUnitExt = "androidx.test.ext:junit:${Versions.androidJUnitExt}"
             const val espressoCore = "androidx.test.espresso:espresso-core:${Versions.espressoCore}"

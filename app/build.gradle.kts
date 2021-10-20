@@ -1,4 +1,8 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import io.github.reactivecircus.appversioning.toSemVer
+import org.jetbrains.kotlin.konan.properties.hasProperty
 import phoenix.browser.gradle.plugins.DependenciesPlugin
+import java.time.Instant
 
 plugins {
     id("com.android.application")
@@ -6,6 +10,10 @@ plugins {
     id("phoenix.browser.gradle.phoenix.browser.gradle.plugins.dependencies")
     kotlin("kapt")
     id("dagger.hilt.android.plugin")
+    //Adding app-versioning plugin just for now! I will implement my own versioning system when I have time and free mind :)
+    id("io.github.reactivecircus.app-versioning") version "1.0.0"
+    //Applying detekt from root project
+    id("io.gitlab.arturbosch.detekt")
 }
 
 android {
@@ -20,15 +28,32 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["clearPackageData"] = "true"
-        testInstrumentationRunnerArguments["listener"] = "leakcanary.FailTestOnLeakRunListener"
+        //This caused my instrumental tests to fail!
+        //testInstrumentationRunnerArguments["listener"] = "leakcanary.FailTestOnLeakRunListener"
 
         vectorDrawables {
             useSupportLibrary = true
         }
     }
 
+    //Put keystore properties inside gradle build for CI to build signed APK
+    if (gradleLocalProperties(rootDir).hasProperty("keystore")) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(getLocalProperty("keystore") as String)
+                storePassword = getLocalProperty("storePassword") as String
+                keyAlias = getLocalProperty("keyAlias") as String
+                keyPassword = getLocalProperty("keyPassword") as String
+                enableV2Signing = true
+            }
+        }
+    }
+
     buildTypes {
         getByName("release") {
+            if (gradleLocalProperties(rootDir).hasProperty("keystore")) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -43,7 +68,7 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
-        useIR = true
+        //useIR = true
     }
     buildFeatures {
         compose = true
@@ -52,10 +77,153 @@ android {
         kotlinCompilerExtensionVersion = DependenciesPlugin.Companion.Versions.compose
     }
     packagingOptions {
+        /*
+        Found another problem at runtime!
+        Here is the workaround that I found: https://github.com/Kotlin/kotlinx.coroutines/issues/2023#issuecomment-627999486
+         */
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "**/attach_hotspot_windows.dll"
+            excludes += "META-INF/licenses/**"
+            excludes += "META-INF/AL2.0"
+            excludes += "META-INF/LGPL2.1"
         }
     }
+
+    testOptions {
+        execution = "ANDROIDX_TEST_ORCHESTRATOR"
+    }
+}
+
+/**
+ * Small function around local properties file
+ */
+fun getLocalProperty(key: String): Any? =
+    gradleLocalProperties(rootDir)[key]
+
+//I will be overriding these for my local builds!
+appVersioning {
+
+    overrideVersionCode { gitTag, providerFactory, variantInfo ->
+        val buildNumber = providerFactory.environmentVariable("BUILD_NUMBER").getOrElse("0").toInt()
+
+        if (variantInfo.isDebugBuild) {
+            /*
+            I will use time for debug builds
+             */
+            Instant.now().epochSecond.toInt()
+        } else {
+            val semVer = gitTag.toSemVer(true)
+
+            semVer.major * 10000 + semVer.minor * 100 + buildNumber
+        }
+    }
+
+    overrideVersionName { gitTag, providerFactory, variantInfo ->
+        val buildNumber = providerFactory.environmentVariable("BUILD_NUMBER").getOrElse("0").toInt()
+        val isCIBuild = providerFactory.environmentVariable("IS_CI_BUILD").getOrElse("false").toBoolean()
+        val isNightly = providerFactory.environmentVariable("IS_NIGHTLY").getOrElse("false").toBoolean()
+        if (variantInfo.isDebugBuild) {
+            "${gitTag.rawTagName} - #$buildNumber(${gitTag.commitHash}-${if (isCIBuild) "CI" else variantInfo.variantName}${ if (isNightly) "-night" else ""})"
+        } else {
+            "${gitTag.rawTagName} - #$buildNumber(${gitTag.commitHash})"
+        }
+    }
+
+    fetchTagsWhenNoneExistsLocally.set(true)
+}
+
+//I just copied this from the official docs and modified some of them!
+detekt {
+    // Version of Detekt that will be used. When unspecified the latest detekt
+    // version found will be used. Override to stay on the same version.
+    //toolVersion = "1.18.1"
+
+    // The directories where detekt looks for source files.
+    // Defaults to `files("src/main/java", "src/test/java", "src/main/kotlin", "src/test/kotlin")`.
+    source = files("src/main/java", "src/main/kotlin")
+
+    // Builds the AST in parallel. Rules are always executed in parallel.
+    // Can lead to speedups in larger projects. `false` by default.
+    parallel = false
+
+    // Define the detekt configuration(s) you want to use.
+    // Defaults to the default detekt configuration.
+    config = files("config/detekt/detekt.yml")
+
+    // Applies the config files on top of detekt's default config file. `false` by default.
+    buildUponDefaultConfig = false
+
+    // Turns on all the rules. `false` by default.
+    allRules = false
+
+    // Specifying a baseline file. All findings stored in this file in subsequent runs of detekt.
+    //baseline = file("path/to/baseline.xml")
+
+    // Disables all default detekt rulesets and will only run detekt with custom rules
+    // defined in plugins passed in with `detektPlugins` configuration. `false` by default.
+    disableDefaultRuleSets = false
+
+    // Adds debug output during task execution. `false` by default.
+    debug = false
+
+    // If set to `true` the build does not fail when the
+    // maxIssues count was reached. Defaults to `false`.
+    ignoreFailures = false
+
+    // Android: Don't create tasks for the specified build types (e.g. "release")
+    ignoredBuildTypes = listOf("release")
+
+    // Android: Don't create tasks for the specified build flavor (e.g. "production")
+    //ignoredFlavors = listOf("production")
+
+    // Android: Don't create tasks for the specified build variants (e.g. "productionRelease")
+    //ignoredVariants = listOf("productionRelease")
+
+    // Specify the base path for file paths in the formatted reports.
+    // If not set, all file paths reported will be absolute file path.
+    basePath = projectDir.absolutePath
+
+    reports {
+        // Enable/Disable XML report (default: true)
+        xml {
+            enabled = true
+            destination = file("build/reports/detekt/detekt.xml")
+        }
+        // Enable/Disable HTML report (default: true)
+        html {
+            enabled = true
+            destination = file("build/reports/detekt/detekt.html")
+        }
+        // Enable/Disable TXT report (default: true)
+        txt {
+            enabled = true
+            destination = file("build/reports/detekt/detekt.txt")
+        }
+        // Enable/Disable SARIF report (default: false)
+        sarif {
+            enabled = true
+            destination = file("build/reports/detekt/detekt.sarif")
+        }
+        custom {
+            // The simple class name of your custom report.
+            reportId = "CustomJsonReport"
+            destination = file("build/reports/detekt.json")
+        }
+    }
+}
+
+/*
+I have the warning on compile time says:
+The following options were not recognized by any processor: '[dagger.fastInit, dagger.hilt.android.internal.disableAndroidSuperclassValidation, kapt.kotlin.generated]'
+
+So I will do the following according to this: https://youtrack.jetbrains.com/issue/KT-46940
+
+Other links:
+https://github.com/google/dagger/issues/2040
+https://dagger.dev/hilt/gradle-setup#aggregating-task
+ */
+hilt {
+    enableAggregatingTask = true
 }
 
 dependencies {
@@ -64,6 +232,17 @@ dependencies {
     implementation(DependenciesPlugin.Companion.Libs.androidxCore)
     implementation(DependenciesPlugin.Companion.Libs.appCompat)
     implementation(DependenciesPlugin.Companion.Libs.material)
+
+    /*
+    Adding this will hopefully solve the problem at build time!
+    Error =
+    A failure occurred while executing com.android.build.gradle.internal.tasks.CheckDuplicatesRunnable
+   > Duplicate class com.google.common.util.concurrent.ListenableFuture found in modules jetified-guava-20.0 (com.google.guava:guava:20.0) and jetified-listenablefuture-1.0 (com.google.guava:listenablefuture:1.0)
+
+     Go to the documentation to learn how to <a href="d.android.com/r/tools/classpath-sync-errors">Fix dependency resolution errors</a>.
+
+     */
+    implementation(DependenciesPlugin.Companion.Libs.guava)
 
     //compose:
     implementation(DependenciesPlugin.Companion.Libs.Compose.ui)
@@ -125,6 +304,7 @@ dependencies {
     //hilt
     implementation(DependenciesPlugin.Companion.Libs.Hilt.android)
     kapt(DependenciesPlugin.Companion.Libs.Hilt.compiler)
+    implementation(DependenciesPlugin.Companion.Libs.Hilt.navigationCompose)
 
     //coil
     implementation(DependenciesPlugin.Companion.Libs.coil)
@@ -141,6 +321,8 @@ dependencies {
     androidTestImplementation(DependenciesPlugin.Companion.TestLibs.espressoCore)
     androidTestImplementation(DependenciesPlugin.Companion.TestLibs.Compose.uiTestJunit4)
     debugImplementation(DependenciesPlugin.Companion.Libs.Compose.uiTooling)
+    androidTestImplementation(DependenciesPlugin.Companion.TestLibs.androidTestRunner)
+    androidTestUtil(DependenciesPlugin.Companion.TestLibs.orchestrator)
     //hilt
     androidTestImplementation(DependenciesPlugin.Companion.TestLibs.Hilt.androidTesting)
     kaptAndroidTest(DependenciesPlugin.Companion.TestLibs.Hilt.compiler)
