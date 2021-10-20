@@ -113,11 +113,15 @@ jobs:
           echo keyPassword=\"$RELEASE_KEY_ALIAS_PASSWORD\" > ./local.properties
       - name: Build release APK
         run: ./gradlew assembleRelease
+      - name: Check and print list of files inside build
+        working-directory: app/build/outputs/apk/release/
+        run: ls
       - name: Upload APK to workspace
         uses: actions/upload-artifact@v2
         with:
           name: rcAPK
           path: app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
   telegram_upload:
       name: Upload Stable apk in telegram
       runs-on: ubuntu-latest
